@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 
-class capitalize implements transformInterface
+class Capitalize implements transformInterface
 {
     public function transform(string $string): string
     {

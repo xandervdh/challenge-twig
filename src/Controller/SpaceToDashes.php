@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 
-class spaceToDashes implements transformInterface
+class SpaceToDashes implements transformInterface
 {
     public function transform(string $string): string
     {

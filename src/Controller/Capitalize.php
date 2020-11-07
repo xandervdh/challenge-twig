@@ -8,6 +8,16 @@ class Capitalize implements transformInterface
 {
     public function transform(string $string): string
     {
-       return preg_replace('/(\w)(.)?/e', "strtoupper('$1').strtolower('$2')", $string);
+        $array = str_split($string);
+        $capitalized = [];
+       for ($i = 0; $i < count($array); $i++){
+           if($i % 2 == 0){
+               array_push($capitalized, strtoupper($array[$i]));
+           }else {
+               array_push($capitalized, strtolower($array[$i]));
+           }
+       }
+       $message = implode("", $capitalized);
+       return $message;
     }
 }

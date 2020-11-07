@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,15 +16,19 @@ class MasterController extends AbstractController
      */
     private $master;
     private SessionInterface $session;
+    private SpaceToDashes $space;
+    private Capitalize $capital;
 
     /**
      * MasterController constructor.
      * @param Master $master
      */
-    public function __construct(Master $master, SessionInterface $session)
+    public function __construct(Master $master, SessionInterface $session, SpaceToDashes $space, Capitalize  $capital)
     {
         $this->master = $master;
         $this->session = $session;
+        $this->space = $space;
+        $this->capital = $capital;
     }
 
 
@@ -50,8 +55,13 @@ class MasterController extends AbstractController
             ->add('message', TextType::class)
             ->getForm();
         $this->master->logString($message);
+
+        $message = $this->capital->transform($message);
+        $message = $this->space->transform($message);
+
         return $this->render('master/master.html.twig', [
             'form' => $form->createView(),
+            'message' => $message,
         ]);
     }
 

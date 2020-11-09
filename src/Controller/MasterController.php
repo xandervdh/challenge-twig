@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\services\Master;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -9,26 +10,29 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 class MasterController extends AbstractController
 {
-    /**
-     * @var Master
-     */
-    private $master;
+    private Master $master;
     private SessionInterface $session;
-    private SpaceToDashes $space;
-    private Capitalize $capital;
+    /*private SpaceToDashes $space;
+    private Capitalize $capital;*/
 
     /**
      * MasterController constructor.
      * @param Master $master
      */
-    public function __construct(Master $master, SessionInterface $session, SpaceToDashes $space, Capitalize  $capital)
+    public function __construct(Logger $logger, SessionInterface $session)
     {
-        $this->master = $master;
+        if ($_POST['form']['transformation'] == 'capital'){
+            $transform = new Capitalize();
+        } else {
+            $transform = new SpaceToDashes();
+        }
+        $this->master = new Master($logger, $transform);
         $this->session = $session;
-        $this->space = $space;
-        $this->capital = $capital;
+        /*$this->space = $space;
+        $this->capital = $capital;*/
     }
 
 
@@ -54,10 +58,9 @@ class MasterController extends AbstractController
         ])
             ->add('message', TextType::class)
             ->getForm();
-        $this->master->logString($message);
+        $message = $this->master->logString($message);
 
-        $message = $this->capital->transform($message);
-        $message = $this->space->transform($message);
+        //$message = $this->space->transform($message);*/
 
         return $this->render('master/master.html.twig', [
             'form' => $form->createView(),
@@ -70,6 +73,11 @@ class MasterController extends AbstractController
      */
     public function changeMessage()
     {
+        if ($_POST['form']['transformation'] == 'capital'){
+            $transform = new Capitalize();
+        } else {
+            $transform = new SpaceToDashes();
+        }
         $this->session->set('message', $_POST['form']['message']);
         return $this->redirectToRoute('master');
     }

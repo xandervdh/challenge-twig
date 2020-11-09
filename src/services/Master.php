@@ -1,14 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\services;
 
 
+
+use App\Controller\Logger;
 
 class Master
 {
     /**
      * @var Logger
+     * @var transform
      */
     private $logger;
     private $transform;
@@ -16,6 +19,7 @@ class Master
     /**
      * Master constructor.
      * @param Logger $logger
+     * @param transform $transform
      */
 
     public function __construct(Logger $logger, transform $transform)
@@ -28,6 +32,6 @@ class Master
     public function logString(string $string)
     {
         $this->logger->logger($string);
-        $this->transform->transform($string);
+        return $this->transform->transform($string);
     }
 }

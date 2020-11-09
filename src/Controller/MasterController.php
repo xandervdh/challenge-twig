@@ -15,21 +15,16 @@ class MasterController extends AbstractController
 {
     private Master $master;
     private SessionInterface $session;
-    /*private SpaceToDashes $space;
-    private Capitalize $capital;*/
 
     /**
      * MasterController constructor.
      * @param Master $master
      */
-    public function __construct(Logger $logger, SessionInterface $session)
+    public function __construct(Logger $logger, SessionInterface $session, Capitalize $transform)
     {
-        if ($_POST['form']['transformation'] == 'capital'){
-            $transform = new Capitalize();
-        } else {
-            $transform = new SpaceToDashes();
+        if (!isset($this->master)){
+            $this->master = new Master($logger, $transform);
         }
-        $this->master = new Master($logger, $transform);
         $this->session = $session;
         /*$this->space = $space;
         $this->capital = $capital;*/
@@ -49,9 +44,16 @@ class MasterController extends AbstractController
     /**
      * @Route("/", name="master")
      */
-    public function input(): response
+    public function input(Logger $logger): response
     {
         $message = $this->session->get('message', 'Unknown');
+        $transformation = $this->session->get('transformation');
+        if ($transformation == 'capital'){
+            $transform = new Capitalize();
+        } else {
+            $transform = new SpaceToDashes();
+        }
+        $this->master = new Master($logger, $transform);
         $form = $this->createFormBuilder(null, [
             'action' => '/change',
             'method' => 'POST',
@@ -59,8 +61,6 @@ class MasterController extends AbstractController
             ->add('message', TextType::class)
             ->getForm();
         $message = $this->master->logString($message);
-
-        //$message = $this->space->transform($message);*/
 
         return $this->render('master/master.html.twig', [
             'form' => $form->createView(),
@@ -73,11 +73,7 @@ class MasterController extends AbstractController
      */
     public function changeMessage()
     {
-        if ($_POST['form']['transformation'] == 'capital'){
-            $transform = new Capitalize();
-        } else {
-            $transform = new SpaceToDashes();
-        }
+        $this->session->set('transformation', $_POST['transformation']);
         $this->session->set('message', $_POST['form']['message']);
         return $this->redirectToRoute('master');
     }
